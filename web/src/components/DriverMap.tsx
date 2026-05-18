@@ -13,8 +13,8 @@ import { MapClickHandler } from "./MapClickHandler";
 import { RoutingControl } from "./RoutingControl";
 
 const START_LOCATION: Coordinate = {
-  latitude: 37.7749,
-  longitude: -122.4194,
+  latitude: 43.69007546008064,
+  longitude: -79.46093665432227,
 };
 
 const driverMarker = new L.Icon({
