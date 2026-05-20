@@ -1,4 +1,4 @@
-package grcp_clients
+package grpc_clients
 
 import (
 	"os"

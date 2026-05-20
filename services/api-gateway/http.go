@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"ride-sharing/services/api-gateway/grcp_clients"
+	"ride-sharing/services/api-gateway/grpc_clients"
 	"ride-sharing/shared/contracts"
 )
 
@@ -27,7 +27,7 @@ func handleTripStart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tripService, err := grcp_clients.NewTripServiceClient()
+	tripService, err := grpc_clients.NewTripServiceClient()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -61,7 +61,7 @@ func handleTripPreview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tripService, err := grcp_clients.NewTripServiceClient()
+	tripService, err := grpc_clients.NewTripServiceClient()
 	if err != nil {
 		log.Fatal(err)
 	}
