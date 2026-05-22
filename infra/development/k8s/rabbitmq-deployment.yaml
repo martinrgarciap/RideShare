@@ -19,6 +19,13 @@ spec:
           ports:
             - containerPort: 5672 # AMQP port
             - containerPort: 15672 # Management UI port
+          startupProbe:
+            exec:
+              command: ["rabbitmq-diagnostics", "check_running"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 20
+            failureThreshold: 30
           readinessProbe:
             exec:
               command: ["rabbitmq-diagnostics", "check_running"]
@@ -37,7 +44,7 @@ spec:
               memory: "512Mi"
               cpu: "500m"
             limits:
-              memory: "1Gi"
+              memory: "2Gi"
               cpu: "1"
           env:
             - name: RABBITMQ_DEFAULT_USER
