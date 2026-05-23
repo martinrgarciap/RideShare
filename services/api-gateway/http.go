@@ -114,7 +114,7 @@ func handleStripeWebhook(w http.ResponseWriter, r *http.Request, rb *messaging.R
 		return
 	}
 
-	log.Printf("Received Stripe event: %v", event)
+	log.Printf("Received Stripe event: type=%s id=%s", event.Type, event.ID)
 
 	switch event.Type {
 	case "checkout.session.completed":
@@ -154,5 +154,7 @@ func handleStripeWebhook(w http.ResponseWriter, r *http.Request, rb *messaging.R
 			http.Error(w, "Failed to publish payment event", http.StatusInternalServerError)
 			return
 		}
+	default:
+		log.Printf("Ignoring Stripe event: type=%s id=%s", event.Type, event.ID)
 	}
 }

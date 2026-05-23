@@ -37,7 +37,7 @@ func (c *paymentConsumer) Listen() error {
 			return err
 		}
 
-		log.Printf("Trip has been completed and payed.")
+		log.Printf("Trip has been completed and paid.")
 
 		return c.service.UpdateTrip(
 			ctx,
