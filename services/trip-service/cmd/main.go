@@ -10,6 +10,7 @@ import (
 	"ride-sharing/services/trip-service/internal/infrastructure/grpc"
 	"ride-sharing/services/trip-service/internal/infrastructure/repository"
 	"ride-sharing/services/trip-service/internal/service"
+	"ride-sharing/shared/db"
 	"ride-sharing/shared/env"
 	"ride-sharing/shared/messaging"
 	"ride-sharing/shared/tracing"
@@ -32,13 +33,24 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize the tracer: %v", err)
 	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	defer shutdownTracer(ctx)
 
+	// Initialize MongoDB
+	mongoClient, err := db.NewMongoClient(ctx, db.NewMongoDefaultConfig())
+	if err != nil {
+		log.Fatalf("Failed to initialize mongoDB, err: %v", err)
+	}
+	defer mongoClient.Disconnect(ctx)
+
+	mongoDB := db.GetDatabase(mongoClient, db.NewMongoDefaultConfig())
+
 	rabbitMQURI := env.GetString("RABBITMQ_URI", "amqp://guest:guest@rabbitmq:5672/")
-	inmemRepo := repository.NewInmemRepository()
-	svc := service.NewService(inmemRepo)
+
+	mongoDBRepo := repository.NewMongoRepository(mongoDB)
+	svc := service.NewService(mongoDBRepo)
 
 	go func() {
 		sigCh := make(chan os.Signal, 1)

@@ -11,6 +11,7 @@ import (
 	pbd "ride-sharing/shared/proto/driver"
 	"ride-sharing/shared/proto/trip"
 	"ride-sharing/shared/types"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -87,6 +88,7 @@ func (s *service) GenerateTripFares(ctx context.Context, rideFares []*domain.Rid
 			TotalPriceInCents: f.TotalPriceInCents,
 			PackageSlug:       f.PackageSlug,
 			Route:             route,
+			CreatedAt:         time.Now(),
 		}
 
 		if err := s.repo.SaveRideFare(ctx, fare); err != nil {

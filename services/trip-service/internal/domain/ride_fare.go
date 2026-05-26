@@ -2,6 +2,7 @@ package domain
 
 import (
 	pb "ride-sharing/shared/proto/trip"
+	"time"
 
 	tripTypes "ride-sharing/services/trip-service/pkg/types"
 
@@ -9,11 +10,12 @@ import (
 )
 
 type RideFareModel struct {
-	ID                primitive.ObjectID
-	UserID            string
-	PackageSlug       string
-	TotalPriceInCents float64
-	Route             *tripTypes.OsrmAPIResponse
+	ID                primitive.ObjectID         `bson:"_id,omitempty"`
+	UserID            string                     `bson:"userID"`
+	PackageSlug       string                     `bson:"packageSlug"`
+	TotalPriceInCents float64                    `bson:"totalPriceInCents"`
+	Route             *tripTypes.OsrmAPIResponse `bson:"route"`
+	CreatedAt         time.Time                  `bson:"createdAt"`
 }
 
 func (r *RideFareModel) ToProto() *pb.RideFare {
