@@ -95,14 +95,12 @@ export const useDriverStreamConnection = ({
           });
 
           break;
-      }
-
-      if (isValidTripEvent(message.type)) {
-        setTripStatus(message.type);
-      } else {
-        setError(
-          `Unknown message type "${message.type}", allowed types are: ${Object.values(TripEvents).join(", ")}`,
-        );
+        default:
+          if (!isValidTripEvent(message.type)) {
+            setError(
+              `Unknown message type "${message.type}", allowed types are: ${Object.values(TripEvents).join(", ")}`,
+            );
+          }
       }
     };
 

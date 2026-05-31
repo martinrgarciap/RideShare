@@ -71,5 +71,17 @@ export const DriverTripOverview = ({
     );
   }
 
-  return null;
+  return (
+    <TripOverviewCard
+      title="Trip request received!"
+      description="A trip has been requested, check the route and accept the trip if you can take it."
+    >
+      <div className="flex flex-col gap-2">
+        <Button onClick={onAcceptTrip}>Accept trip</Button>
+        <Button variant="outline" onClick={onDeclineTrip}>
+          Decline trip
+        </Button>
+      </div>
+    </TripOverviewCard>
+  );
 };
