@@ -101,7 +101,12 @@ export const RiderTripOverview = ({
     );
   }
 
-  if (status === TripEvents.Cancelled) {
+  if (
+    trip.tripID &&
+    (!status ||
+      status === TripEvents.Created ||
+      status === TripEvents.Cancelled)
+  ) {
     return (
       <TripOverviewCard
         title="Looking for a driver"
