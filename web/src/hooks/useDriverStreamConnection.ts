@@ -75,14 +75,23 @@ export const useDriverStreamConnection = ({
           setDriver(message.data);
           break;
         case TripEvents.Cancelled:
-          setRequestedTrip(null);
-          setTripStatus(message.type);
-          setCancelReason(message.data?.reason ?? "rider_cancelled");
+          setRequestedTrip((currentTrip) => {
+            const cancelledTripID = message.data?.tripID;
 
-          setTimeout(() => {
-            setTripStatus(null);
-            setCancelReason(null);
-          }, 3000);
+            if (!currentTrip || currentTrip.id === cancelledTripID) {
+              setTripStatus(message.type);
+              setCancelReason(message.data?.reason ?? "rider_cancelled");
+
+              setTimeout(() => {
+                setTripStatus(null);
+                setCancelReason(null);
+              }, 3000);
+
+              return null;
+            }
+
+            return currentTrip;
+          });
 
           break;
       }

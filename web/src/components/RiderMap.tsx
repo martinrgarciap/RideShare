@@ -69,33 +69,14 @@ export default function RiderMap({ onRouteSelected }: RiderMapProps) {
     resetTripStatus,
   } = useRiderStreamConnection(location, userID);
 
-  console.log(tripStatus);
-
   const handleMapClick = async (e: L.LeafletMouseEvent) => {
-    console.log("map clicked", {
-      trip,
-      tripID: trip?.tripID,
-      lat: e.latlng.lat,
-      lng: e.latlng.lng,
-    });
-
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
 
     debounceTimeoutRef.current = setTimeout(async () => {
-      console.log("debounced map click", {
-        trip,
-        tripID: trip?.tripID,
-        shouldCancel: Boolean(trip?.tripID),
-      });
-
       if (trip?.tripID) {
-        console.log("route change cancellation starting", trip.tripID);
-
         await cancelTrip(trip.tripID, "route_changed");
-
-        console.log("route change cancellation finished", trip.tripID);
 
         setTrip(null);
         setDestination(null);
@@ -108,7 +89,6 @@ export default function RiderMap({ onRouteSelected }: RiderMapProps) {
         pickup: [location.latitude, location.longitude],
         destination: [e.latlng.lat, e.latlng.lng],
       });
-      console.log(data);
 
       const parsedRoute = data.route.geometry[0].coordinates.map(
         (coord) => [coord.longitude, coord.latitude] as [number, number],
@@ -187,25 +167,10 @@ export default function RiderMap({ onRouteSelected }: RiderMapProps) {
   };
 
   const cancelTrip = async (tripID: string, reason: string) => {
-    console.log("cancelTrip called", {
-      tripID,
-      userID,
-      reason,
-      url: `${API_URL}${BackendEndpoints.CANCEL_TRIP}`,
-    });
-
     try {
-      const response = await fetch(
-        `${API_URL}${BackendEndpoints.CANCEL_TRIP}`,
-        {
-          method: "POST",
-          body: JSON.stringify({ tripID, userID, reason }),
-        },
-      );
-
-      console.log("cancelTrip response", {
-        status: response.status,
-        ok: response.ok,
+      await fetch(`${API_URL}${BackendEndpoints.CANCEL_TRIP}`, {
+        method: "POST",
+        body: JSON.stringify({ tripID, userID, reason }),
       });
     } catch (error) {
       console.error("Failed to cancel trip", error);
@@ -223,14 +188,9 @@ export default function RiderMap({ onRouteSelected }: RiderMapProps) {
   };
   useEffect(() => {
     const cancelOnUnload = () => {
-      console.log("beforeunload fired", {
-        tripID: trip?.tripID,
-        userID,
-      });
-
       if (!trip?.tripID) return;
 
-      const sent = navigator.sendBeacon(
+      navigator.sendBeacon(
         `${API_URL}${BackendEndpoints.CANCEL_TRIP}`,
         JSON.stringify({
           tripID: trip.tripID,
@@ -238,8 +198,6 @@ export default function RiderMap({ onRouteSelected }: RiderMapProps) {
           reason: "rider_disconnected",
         }),
       );
-
-      console.log("sendBeacon result", sent);
     };
 
     window.addEventListener("beforeunload", cancelOnUnload);
