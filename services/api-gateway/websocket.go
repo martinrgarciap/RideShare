@@ -34,15 +34,26 @@ func handleRidersWebSocket(w http.ResponseWriter, r *http.Request, rb *messaging
 	defer connManager.Remove(userID)
 
 	// Initialize queue consumers
-	queues := []string{
+	riderQueues := []string{
 		messaging.NotifyDriverNoDriversFoundQueue,
 		messaging.NotifyDriverAssignQueue,
 		messaging.NotifyPaymentSessionCreatedQueue,
 	}
 
-	for _, q := range queues {
+	for _, q := range riderQueues {
 		consumer := messaging.NewQueueConsumer(rb, connManager, q)
+		if err := consumer.Start(); err != nil {
+			log.Printf("Failed to start consumer for queue: %s: err: %v", q, err)
+		}
+	}
 
+	driverQueues := []string{
+		messaging.DriverCmdTripRequestQueue,
+		messaging.NotifyTripCancelledQueue,
+	}
+
+	for _, q := range driverQueues {
+		consumer := messaging.NewQueueConsumer(rb, connManager, q)
 		if err := consumer.Start(); err != nil {
 			log.Printf("Failed to start consumer for queue: %s: err: %v", q, err)
 		}
@@ -122,14 +133,26 @@ func handleDriversWebSocket(w http.ResponseWriter, r *http.Request, rb *messagin
 	}
 
 	// Initialize queue consumers
-	queues := []string{
+	riderQueues := []string{
+		messaging.NotifyDriverNoDriversFoundQueue,
+		messaging.NotifyDriverAssignQueue,
+		messaging.NotifyPaymentSessionCreatedQueue,
+	}
+
+	for _, q := range riderQueues {
+		consumer := messaging.NewQueueConsumer(rb, connManager, q)
+		if err := consumer.Start(); err != nil {
+			log.Printf("Failed to start consumer for queue: %s: err: %v", q, err)
+		}
+	}
+
+	driverQueues := []string{
 		messaging.DriverCmdTripRequestQueue,
 		messaging.NotifyTripCancelledQueue,
 	}
 
-	for _, q := range queues {
+	for _, q := range driverQueues {
 		consumer := messaging.NewQueueConsumer(rb, connManager, q)
-
 		if err := consumer.Start(); err != nil {
 			log.Printf("Failed to start consumer for queue: %s: err: %v", q, err)
 		}

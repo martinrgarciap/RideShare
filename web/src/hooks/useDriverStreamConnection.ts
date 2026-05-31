@@ -70,6 +70,7 @@ export const useDriverStreamConnection = ({
         case TripEvents.DriverTripRequest:
           const trip = message.data?.trip ?? message.data;
           setRequestedTrip(trip);
+          setTripStatus(message.type);
           break;
         case TripEvents.DriverRegister:
           setDriver(message.data);
