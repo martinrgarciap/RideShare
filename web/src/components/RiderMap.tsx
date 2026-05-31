@@ -168,7 +168,10 @@ export default function RiderMap({ onRouteSelected }: RiderMapProps) {
       method: "POST",
       body: JSON.stringify(payload),
     });
-    const data = (await response.json()) as HTTPTripStartResponse;
+
+    const { data } = (await response.json()) as {
+      data: HTTPTripStartResponse;
+    };
 
     if (response.ok && trip) {
       setTrip(
