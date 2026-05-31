@@ -95,6 +95,48 @@ func handleTripPreview(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, response)
 }
 
+func handleTripCancel(w http.ResponseWriter, r *http.Request, rb *messaging.RabbitMQ) {
+	ctx, span := tracer.Start(r.Context(), "handleTripCancel")
+	defer span.End()
+
+	var reqBody cancelTripRequest
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		http.Error(w, "failed to parse JSON data", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	if reqBody.TripID == "" || reqBody.UserID == "" {
+		http.Error(w, "TripID and UserID are required", http.StatusBadRequest)
+		return
+	}
+
+	payload := messaging.TripCancelData{
+		TripID: reqBody.TripID,
+		UserID: reqBody.UserID,
+		Reason: reqBody.Reason,
+	}
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		http.Error(w, "Failed to marshal cancel payload", http.StatusInternalServerError)
+		return
+	}
+
+	if err := rb.PublishMessage(ctx, contracts.TripCmdCancel, contracts.AmqpMessage{
+		OwnerID: reqBody.UserID,
+		Data:    payloadBytes,
+	}); err != nil {
+		log.Printf("Failed to publish trip cancel: %v", err)
+		http.Error(w, "Failed to cancel trip", http.StatusInternalServerError)
+		return
+	}
+
+	writeJSON(w, http.StatusAccepted, contracts.APIResponse{
+		Data: map[string]string{"status": "cancel_requested"},
+	})
+}
+
 func handleStripeWebhook(w http.ResponseWriter, r *http.Request, rb *messaging.RabbitMQ) {
 	ctx, span := tracer.Start(r.Context(), "handleStripeWebhook")
 	defer span.End()

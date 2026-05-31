@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	httpAddr    = env.GetString("HTTP_ADDR", ":8081")
+	httpAddr    = env.GetString("GATEWAY_HTTP_ADDR", ":8081")
 	rabbitMQURI = env.GetString("RABBITMQ_URI", "amqp://guest:guest@rabbitmq:5672/")
 )
 
@@ -50,6 +50,9 @@ func main() {
 
 	mux.Handle("POST /trip/preview", tracing.WrapHandlerFunc(enableCORS(handleTripPreview), "/trip/preview"))
 	mux.Handle("POST /trip/start", tracing.WrapHandlerFunc(enableCORS(handleTripStart), "/trip/start"))
+	mux.Handle("POST /trip/cancel", tracing.WrapHandlerFunc(enableCORS(func(w http.ResponseWriter, r *http.Request) {
+	handleTripCancel(w, r, rabbitmq)
+}), "/trip/cancel"))
 	mux.Handle("/ws/drivers", tracing.WrapHandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleDriversWebSocket(w, r, rabbitmq)
 	}, "/ws/drivers"))

@@ -52,6 +52,7 @@ export const DriverMap = ({ packageSlug }: { packageSlug: CarPackageSlug }) => {
     driver,
     tripStatus,
     requestedTrip,
+    cancelReason,
     sendMessage,
     setTripStatus,
     resetTripStatus,
@@ -190,6 +191,7 @@ export const DriverMap = ({ packageSlug }: { packageSlug: CarPackageSlug }) => {
           <DriverTripOverview
             trip={requestedTrip}
             status={tripStatus}
+            cancelReason={cancelReason}
             onAcceptTrip={handleAcceptTrip}
             onDeclineTrip={handleDeclineTrip}
           />

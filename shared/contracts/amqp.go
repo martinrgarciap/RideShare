@@ -13,6 +13,8 @@ const (
 	TripEventDriverAssigned      = "trip.event.driver_assigned"
 	TripEventNoDriversFound      = "trip.event.no_drivers_found"
 	TripEventDriverNotInterested = "trip.event.driver_not_interested"
+	TripCmdCancel                = "trip.cmd.cancel"
+	TripEventCancelled           = "trip.event.cancelled"
 
 	// Driver commands (driver.cmd.*)
 	DriverCmdTripRequest = "driver.cmd.trip_request"

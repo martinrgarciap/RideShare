@@ -83,6 +83,10 @@ func main() {
 	paymentConsumer := events.NewPaymentConsumer(rabbitmq, svc)
 	go paymentConsumer.Listen()
 
+	// Start the cancel consumer
+	cancelConsumer := events.NewCancelConsumer(rabbitmq, svc)
+	go cancelConsumer.Listen()
+
 	// Starting the gRPC server
 	grpcServer := grpcserver.NewServer(tracing.WithTracingInterceptors()...)
 	grpc.NewGRPCHandler(grpcServer, svc, publisher)

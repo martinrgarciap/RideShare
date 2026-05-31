@@ -2,7 +2,7 @@
 
 import L from "leaflet";
 import Image from "next/image";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   MapContainer,
   Marker,
@@ -72,15 +72,18 @@ export default function RiderMap({ onRouteSelected }: RiderMapProps) {
   console.log(tripStatus);
 
   const handleMapClick = async (e: L.LeafletMouseEvent) => {
-    if (trip?.tripID) {
-      return;
-    }
-
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
 
     debounceTimeoutRef.current = setTimeout(async () => {
+      if (trip?.tripID) {
+        await cancelTrip(trip.tripID, "route_changed");
+        setTrip(null);
+        setDestination(null);
+        resetTripStatus();
+      }
+
       setDestination([e.latlng.lat, e.latlng.lng]);
 
       const data = await requestRidePreview({
@@ -162,11 +165,46 @@ export default function RiderMap({ onRouteSelected }: RiderMapProps) {
     return data;
   };
 
-  const handleCancelTrip = () => {
+  const cancelTrip = async (tripID: string, reason: string) => {
+    try {
+      await fetch(`${API_URL}${BackendEndpoints.CANCEL_TRIP}`, {
+        method: "POST",
+        body: JSON.stringify({ tripID, userID, reason }),
+      });
+    } catch (error) {
+      console.error("Failed to cancel trip", error);
+    }
+  };
+
+  const handleCancelTrip = async () => {
+    if (trip?.tripID) {
+      await cancelTrip(trip.tripID, "rider_cancelled");
+    }
+
     setTrip(null);
     setDestination(null);
     resetTripStatus();
   };
+  useEffect(() => {
+    const cancelOnUnload = () => {
+      if (!trip?.tripID) return;
+
+      navigator.sendBeacon(
+        `${API_URL}${BackendEndpoints.CANCEL_TRIP}`,
+        JSON.stringify({
+          tripID: trip.tripID,
+          userID,
+          reason: "rider_disconnected",
+        }),
+      );
+    };
+
+    window.addEventListener("beforeunload", cancelOnUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", cancelOnUnload);
+    };
+  }, [trip?.tripID, userID]);
 
   if (error) {
     return <div>Error: {error}</div>;

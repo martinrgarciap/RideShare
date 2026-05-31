@@ -124,6 +124,7 @@ func handleDriversWebSocket(w http.ResponseWriter, r *http.Request, rb *messagin
 	// Initialize queue consumers
 	queues := []string{
 		messaging.DriverCmdTripRequestQueue,
+		messaging.NotifyTripCancelledQueue,
 	}
 
 	for _, q := range queues {

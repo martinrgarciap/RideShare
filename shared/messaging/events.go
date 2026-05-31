@@ -15,7 +15,16 @@ const (
 	NotifyPaymentSessionCreatedQueue = "notify_payment_session_created"
 	NotifyPaymentSuccessQueue        = "payment_success"
 	DeadLetterQueue                  = "dead_letter_queue"
+	TripCancelQueue                  = "trip_cancel"
+	NotifyTripCancelledQueue         = "notify_trip_cancelled"
 )
+
+type TripCancelData struct {
+	TripID   string `json:"tripID"`
+	UserID   string `json:"userID"`
+	DriverID string `json:"driverID,omitempty"`
+	Reason   string `json:"reason,omitempty"`
+}
 
 type TripEventData struct {
 	Trip *pb.Trip `json:"trip"`

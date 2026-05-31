@@ -289,6 +289,22 @@ func (r *RabbitMQ) setupExchangesAndQueues() error {
 		return err
 	}
 
+	if err := r.declareAndBindQueue(
+		TripCancelQueue,
+		[]string{contracts.TripCmdCancel},
+		TripExchange,
+	); err != nil {
+		return err
+	}
+
+	if err := r.declareAndBindQueue(
+		NotifyTripCancelledQueue,
+		[]string{contracts.TripEventCancelled},
+		TripExchange,
+	); err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -1,23 +1,38 @@
-import { Trip } from "../types"
-import { TripOverviewCard } from "./TripOverviewCard"
-import { Button } from "./ui/button"
-import { TripEvents } from "../contracts"
+import { TripEvents } from "../contracts";
+import { Trip } from "../types";
+import { TripOverviewCard } from "./TripOverviewCard";
+import { Button } from "./ui/button";
 
 interface DriverTripOverviewProps {
-  trip?: Trip | null,
-  status?: TripEvents | null,
-  onAcceptTrip?: () => void,
-  onDeclineTrip?: () => void
+  trip?: Trip | null;
+  status?: TripEvents | null;
+  cancelReason?: string | null;
+  onAcceptTrip?: () => void;
+  onDeclineTrip?: () => void;
 }
 
-export const DriverTripOverview = ({ trip, status, onAcceptTrip, onDeclineTrip }: DriverTripOverviewProps) => {
+export const DriverTripOverview = ({
+  trip,
+  status,
+  cancelReason,
+  onAcceptTrip,
+  onDeclineTrip,
+}: DriverTripOverviewProps) => {
+  if (status === TripEvents.Cancelled) {
+    return (
+      <TripOverviewCard
+        title="Ride cancelled"
+        description="The rider cancelled this ride. Waiting for a new ride request..."
+      />
+    );
+  }
   if (!trip) {
     return (
       <TripOverviewCard
         title="Waiting for a rider..."
         description="Waiting for a rider to request a trip..."
       />
-    )
+    );
   }
 
   if (status === TripEvents.DriverTripRequest) {
@@ -28,10 +43,12 @@ export const DriverTripOverview = ({ trip, status, onAcceptTrip, onDeclineTrip }
       >
         <div className="flex flex-col gap-2">
           <Button onClick={onAcceptTrip}>Accept trip</Button>
-          <Button variant="outline" onClick={onDeclineTrip}>Decline trip</Button>
+          <Button variant="outline" onClick={onDeclineTrip}>
+            Decline trip
+          </Button>
         </div>
       </TripOverviewCard>
-    )
+    );
   }
 
   if (status === TripEvents.DriverTripAccept) {
@@ -51,8 +68,8 @@ export const DriverTripOverview = ({ trip, status, onAcceptTrip, onDeclineTrip }
           </div>
         </div>
       </TripOverviewCard>
-    )
+    );
   }
 
-  return null
-}
+  return null;
+};

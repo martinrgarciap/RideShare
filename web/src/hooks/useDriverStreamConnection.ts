@@ -31,6 +31,7 @@ export const useDriverStreamConnection = ({
   const [error, setError] = useState<string | null>(null);
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [driver, setDriver] = useState<Driver | null>(null);
+  const [cancelReason, setCancelReason] = useState<string | null>(null);
 
   useEffect(() => {
     if (!userID) return;
@@ -72,6 +73,17 @@ export const useDriverStreamConnection = ({
           break;
         case TripEvents.DriverRegister:
           setDriver(message.data);
+          break;
+        case TripEvents.Cancelled:
+          setRequestedTrip(null);
+          setTripStatus(message.type);
+          setCancelReason(message.data?.reason ?? "rider_cancelled");
+
+          setTimeout(() => {
+            setTripStatus(null);
+            setCancelReason(null);
+          }, 3000);
+
           break;
       }
 
@@ -120,6 +132,7 @@ export const useDriverStreamConnection = ({
     tripStatus,
     driver,
     requestedTrip,
+    cancelReason,
     resetTripStatus,
     sendMessage,
     setTripStatus,
