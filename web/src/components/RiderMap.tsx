@@ -186,24 +186,29 @@ export default function RiderMap({ onRouteSelected }: RiderMapProps) {
     setDestination(null);
     resetTripStatus();
   };
+
   useEffect(() => {
-    const cancelOnUnload = () => {
+    const cancelOnPageExit = () => {
       if (!trip?.tripID) return;
+
+      const payload = JSON.stringify({
+        tripID: trip.tripID,
+        userID,
+        reason: "rider_disconnected",
+      });
 
       navigator.sendBeacon(
         `${API_URL}${BackendEndpoints.CANCEL_TRIP}`,
-        JSON.stringify({
-          tripID: trip.tripID,
-          userID,
-          reason: "rider_disconnected",
-        }),
+        new Blob([payload], { type: "application/json" }),
       );
     };
 
-    window.addEventListener("beforeunload", cancelOnUnload);
+    window.addEventListener("pagehide", cancelOnPageExit);
+    window.addEventListener("beforeunload", cancelOnPageExit);
 
     return () => {
-      window.removeEventListener("beforeunload", cancelOnUnload);
+      window.removeEventListener("pagehide", cancelOnPageExit);
+      window.removeEventListener("beforeunload", cancelOnPageExit);
     };
   }, [trip?.tripID, userID]);
 

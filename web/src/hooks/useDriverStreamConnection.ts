@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { WEBSOCKET_URL } from "../constants";
 import {
   BackendEndpoints,
@@ -32,6 +32,17 @@ export const useDriverStreamConnection = ({
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [driver, setDriver] = useState<Driver | null>(null);
   const [cancelReason, setCancelReason] = useState<string | null>(null);
+
+  const cancelResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+
+  const clearCancelResetTimeout = () => {
+    if (cancelResetTimeoutRef.current) {
+      clearTimeout(cancelResetTimeoutRef.current);
+      cancelResetTimeoutRef.current = null;
+    }
+  };
 
   useEffect(() => {
     if (!userID) return;
@@ -68,7 +79,10 @@ export const useDriverStreamConnection = ({
 
       switch (message.type) {
         case TripEvents.DriverTripRequest:
+          clearCancelResetTimeout();
+
           const trip = message.data?.trip ?? message.data;
+          setCancelReason(null);
           setRequestedTrip(trip);
           setTripStatus(message.type);
           break;
@@ -80,12 +94,17 @@ export const useDriverStreamConnection = ({
             const cancelledTripID = message.data?.tripID;
 
             if (!currentTrip || currentTrip.id === cancelledTripID) {
+              clearCancelResetTimeout();
+
               setTripStatus(message.type);
               setCancelReason(message.data?.reason ?? "rider_cancelled");
 
-              setTimeout(() => {
-                setTripStatus(null);
+              cancelResetTimeoutRef.current = setTimeout(() => {
+                setTripStatus((currentStatus) =>
+                  currentStatus === TripEvents.Cancelled ? null : currentStatus,
+                );
                 setCancelReason(null);
+                cancelResetTimeoutRef.current = null;
               }, 3000);
 
               return null;
@@ -114,6 +133,8 @@ export const useDriverStreamConnection = ({
     };
 
     return () => {
+      clearCancelResetTimeout();
+
       console.log("Closing WebSocket");
       if (websocket.readyState === WebSocket.OPEN) {
         websocket.close();
@@ -131,8 +152,10 @@ export const useDriverStreamConnection = ({
   };
 
   const resetTripStatus = () => {
+    clearCancelResetTimeout();
     setTripStatus(null);
     setRequestedTrip(null);
+    setCancelReason(null);
   };
 
   return {

@@ -1,6 +1,6 @@
-# RideShare
+# RideLink
 
-RideShare is a distributed ride-sharing application built with Go microservices, RabbitMQ, Docker, Kubernetes, and Tilt. This repository contains my implementation of the system, including the service boundaries, messaging flows, local Kubernetes development setup, and deployment manifests.
+RideLink is a distributed ride-sharing application built with Go microservices, RabbitMQ, Docker, Kubernetes, and Tilt. This repository contains my implementation of the system, including the service boundaries, messaging flows, local Kubernetes development setup, and deployment manifests.
 
 ## Project overview
 
