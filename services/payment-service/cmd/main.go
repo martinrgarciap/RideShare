@@ -49,8 +49,8 @@ func main() {
 	// Stripe config
 	stripeCfg := &types.PaymentConfig{
 		StripeSecretKey: env.GetString("STRIPE_SECRET_KEY", ""),
-		SuccessURL:      env.GetString("STRIPE_SUCCESS_URL", appURL+"?payment=success"),
-		CancelURL:       env.GetString("STRIPE_CANCEL_URL", appURL+"?payment=cancel"),
+		SuccessURL:      env.GetString("STRIPE_SUCCESS_URL", appURL+"/ride-console?payment=success"),
+		CancelURL:       env.GetString("STRIPE_CANCEL_URL", appURL+"/ride-console?payment=cancel"),
 	}
 
 	if stripeCfg.StripeSecretKey == "" {

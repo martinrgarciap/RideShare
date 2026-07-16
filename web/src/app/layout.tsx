@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RideLink",
-  description: "RideLink",
+  title: "RideShare",
+  description: "A distributed ride-sharing application built with Go microservices.",
 };
 
 export default function RootLayout({
